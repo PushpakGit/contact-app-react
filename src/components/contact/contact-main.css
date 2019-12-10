@@ -1,0 +1,34 @@
+.create-contact-wrapper{
+    margin-top: 10px;
+}
+
+.edit-contact-icon, .delete-contact-icon{
+    width: 25px;
+    height: 25px;
+    display: inline-block;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.edit-contact-icon img, .delete-contact-icon img {
+    width: 100%;
+    height: 100%;
+}
+
+.inactive-filter-swich,.view-filter-swich{
+    height: 20px;
+    margin: 0 10px;
+}
+
+.create-contact-wrapper div{
+    display: inline-block;
+}
+
+.contact-card{
+    display: inline-block;
+    border:1px solid black;
+}
+
+.contact-card-div{
+    margin-top: 20px;
+}
