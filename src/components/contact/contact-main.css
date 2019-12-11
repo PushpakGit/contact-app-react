@@ -71,7 +71,7 @@
 }
 
 .react-switch-handle{
-    display: none;
+    visibility: hidden;
 }
 
 @media all and (max-width:700px){
