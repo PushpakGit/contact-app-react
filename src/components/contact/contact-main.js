@@ -151,7 +151,7 @@ class ContactApp extends Component{
                 lastName:t.state.lastName.trim(),
                 email:t.state.email.trim(),
                 phone:t.state.phone,
-                status:"active"
+                status:t.state.isEditing ? t.state.status : "active"
             }
             if(t.state.isEditing){
                 allContacts[this.state.editRowId] = contactObj;
