@@ -5,6 +5,7 @@ import { Button, Modal, Form} from 'react-bootstrap';
 import Snackbar from '@material-ui/core/Snackbar';
 import MDSpinner from "react-md-spinner";
 import Switch from "react-switch";
+import Dialog from 'react-bootstrap-dialog';
 
 class ContactApp extends Component{
 
@@ -46,11 +47,17 @@ class ContactApp extends Component{
                     <td className="contact-data">{ contact.status }</td>
                     <td className="contact-data"> 
                         <span className="edit-contact-icon" title="Edit" onClick={()=>{ this.editContact(contact.phone) }}>
-                            <img src={require("../../asset/edit-icon24.png")}></img>
+                            <img src={require("../../asset/edit-icon24.png")} alt="edit icon"></img>
                         </span>
-                        <span className="delete-contact-icon" title="Inactive" onClick={()=>{ this.deleteContact(contact.phone) }} >
-                            <img src={require("../../asset/delete-icon-26.png")}></img>
-                        </span>
+                        {
+                            contact.status === "active"
+                            ?
+                            <span className="delete-contact-icon" title="Inactivate" onClick={()=>{ this.deleteContact(contact.phone) }} >
+                                <img src={require("../../asset/delete-icon-26.png")} alt="inactivate icon"></img>
+                            </span>
+                            :
+                            <span className="delete-contact-icon" ></span>
+                        }                        
                     </td>
                 </tr>  
             }
@@ -67,24 +74,30 @@ class ContactApp extends Component{
         let t = this;
         let list = t.state.contactList;
         if(list.length > 0){
-            return list.map(contact => {
+            return list.map((contact,idx) => {
                 let fName = contact.firstName ? contact.firstName : ''; // handling null value
                 let lName = contact.lastName ? contact.lastName : '';
                 if(!t.state.showInactive && contact.status === "inactive"){
                     return null;
                 }else{
-                    return <div className="contact-card col-4"> 
+                    return <div key={idx} className="contact-card col-4"> 
                             <div className="card-contact-name">{`${fName} ${lName}`}</div>
                             <div className="card-contact-email">{contact.email}</div>
                             <div className="card-contact-phone">{contact.phone}</div>
                             <div className="card-contact-phone">{contact.status}</div>
                             <div className="card-contact-action">
                                 <span className="edit-contact-icon" title="Edit" onClick={()=>{ this.editContact(contact.phone) }}>
-                                    <img src={require("../../asset/edit-icon24.png")}></img>
+                                    <img src={require("../../asset/edit-icon24.png")} alt="edit icon"></img>
                                 </span>
-                                <span className="delete-contact-icon" title="Inactive" onClick={()=>{ this.deleteContact(contact.phone) }} >
-                                    <img src={require("../../asset/delete-icon-26.png")}></img>
-                                </span>
+                                {
+                                    contact.status === "active"
+                                    ?
+                                    <span className="delete-contact-icon" title="Inactivate" onClick={()=>{ this.deleteContact(contact.phone) }} >
+                                        <img src={require("../../asset/delete-icon-26.png")} alt="inactivate icon"></img>
+                                    </span>
+                                    :
+                                    <span className="delete-contact-icon" ></span>
+                                }
                             </div>
                         </div>
                     }
@@ -166,6 +179,7 @@ class ContactApp extends Component{
             if(contact.phone === t.state.phone || contact.email === t.state.email){
                 isMailOrPhoneExist = true;
             }
+            return '';
         });
         if (!t.state.firstName) {
             valid = false;
@@ -195,6 +209,7 @@ class ContactApp extends Component{
                 selectedContact = contact;
                 idx = index;
             }
+            return '';
         });
         t.setState({
             firstName:selectedContact.firstName,
@@ -208,18 +223,30 @@ class ContactApp extends Component{
 
     deleteContact = (phone) =>{
         let t = this;
-        let list = t.state.contactList;
-        let selectedContact,idx;
-        list.map((contact,index) => {
-            if(contact.phone === phone){
-                selectedContact = contact;
-                idx = index;
+        this.okCancelDialog.show({
+            body: "Are you sure you want to Inactivate this contact?",
+            actions: [
+              Dialog.CancelAction(() =>{  }),
+              Dialog.OKAction(()=>{ 
+                    let list = t.state.contactList;
+                    let idx;
+                    list.map((contact,index) => {
+                        if(contact.phone === phone){
+                            idx = index;
+                        }
+                        return '';
+                    });
+                    list[idx].status = "inactive";
+                    t.setState({contactList:list});
+                    localStorage.setItem('contactList', JSON.stringify(list));
+                    t.notificationDisplay("Contact marked as inactive");
+                })
+            ],
+            onHide: (dialog) => {
+              dialog.hide();
             }
-        });
-        list[idx].status = "inactive";
-        t.setState({contactList:list});
-        localStorage.setItem('contactList', JSON.stringify(list));
-        t.notificationDisplay("Contact marked as inactive")
+          });
+       
     }
 
     notificationDisplay(message){
@@ -359,6 +386,7 @@ class ContactApp extends Component{
                 <div className={(this.state.loading === true) ? "loader" : "off-loader"} style={{zIndex:1060}}>
                     <MDSpinner size={50} color1="#319DD8" color2="#319DD8" color3="#319DD8" color4="#319DD8"/>
                 </div>
+                <Dialog ref={(el) => { this.okCancelDialog = el }}/>
             </div>
         );
     }
