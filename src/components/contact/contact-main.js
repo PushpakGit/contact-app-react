@@ -175,8 +175,11 @@ class ContactApp extends Component{
         let valid = true;
         let list = t.state.contactList;
         let isMailOrPhoneExist = false;
-        list.map(contact =>{
-            if(contact.phone === t.state.phone || contact.email === t.state.email){
+        list.map((contact,index) =>{
+            console.log("t.state.editRowId",t.state.editRowId,index)
+            if(t.state.editRowId == index){
+                return false;
+            }else if(contact.phone === t.state.phone || contact.email === t.state.email){
                 isMailOrPhoneExist = true;
             }
             return '';
@@ -193,7 +196,7 @@ class ContactApp extends Component{
         } else if (!t.state.phone || t.state.phone.length < 10) {
             valid = false;
             t.notificationDisplay('Phone number is not valid');   
-        } else if (isMailOrPhoneExist && !t.state.isEditing) {
+        } else if (isMailOrPhoneExist) {
             valid = false;
             t.notificationDisplay('Email or phone number already exist');   
         }
