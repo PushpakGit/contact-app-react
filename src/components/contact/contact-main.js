@@ -65,7 +65,7 @@ class ContactApp extends Component{
         );
         }else{
             return <tr className="contact-row">
-                        <td colSpan="5">No contacts found, Please click "Create Contact" button to create one.</td>
+                        <td colSpan="5">No contact found, Please click "Create Contact" button to create one.</td>
                     </tr>
         }
     }
@@ -80,7 +80,7 @@ class ContactApp extends Component{
                 if(!t.state.showInactive && contact.status === "inactive"){
                     return null;
                 }else{
-                    return <div key={idx} className="contact-card col-4"> 
+                    return <div key={idx} className="contact-card col-lg-4"> 
                             <div className="card">
                                 <div className="card-contact-name">{`${fName} ${lName}`}</div>
                                 <div className="card-contact-email">{contact.email}</div>
@@ -106,7 +106,7 @@ class ContactApp extends Component{
             });
             
         }else{
-            return <div className="contact-card"> 
+            return <div className="contact-card col-lg-4"> 
             <div className="card">
              No contact found click "Create Contact" button to create one.</div>
             </div>
@@ -310,22 +310,22 @@ class ContactApp extends Component{
         return(
             <div className="container">
                 <div className="create-contact-wrapper col-12">
-                    <div className="col-3">
+                    <div className="col-lg-3">
                     <label className="inactive-filter-lable">
                             <span>Show Card View</span>
                             <Switch className="view-filter-swich" onChange={this.handleViewFilterChange} checked={this.state.showCardView} />
                         </label>
                     </div>
-                    <div className="col-3">
+                    <div className="col-lg-3">
                         <label className="inactive-filter-lable">
                             <span>Show Inactive Contact</span>
                             <Switch className="inactive-filter-swich" onChange={this.handleStatusFilterChange} checked={this.state.showInactive} />
                         </label>
                     </div>
-                    <div className="col-3">
+                    <div className="col-lg-3">
                         <Button className="create-contact-btn" onClick={this.openCreateEditModal}>Create Contact</Button>
                     </div>
-                    <div className="col-3">
+                    <div className="col-lg-3">
                         <Button className="delete-all-btn btn-danger" onClick={this.deleteAllContact}>Delete All Contacts</Button>
                     </div>
                     
