@@ -6,8 +6,11 @@
     width: 25px;
     height: 25px;
     display: inline-block;
-    margin-right: 10px;
     cursor: pointer;
+}
+
+.delete-contact-icon{
+    margin-left: 20px;
 }
 
 .edit-contact-icon img, .delete-contact-icon img {
@@ -26,9 +29,47 @@
 
 .contact-card{
     display: inline-block;
-    border:1px solid black;
+    float: left;
+    margin-bottom: 10px;
+}
+
+.contact-card .card{
+    padding: 15px;
+    box-shadow: 3px 3px 3px #ddd;
+    min-height: 160px;
 }
 
 .contact-card-div{
     margin-top: 20px;
+}
+
+.contact-table-div{
+    margin-top: 10px;
+}
+
+.modal-dialog{
+    top:15%;
+}
+
+.contact-table{
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #ddd;
+}
+
+.contact-thead-tr{
+    background: #ccc;
+}
+
+.delete-all-btn,.create-contact-btn{
+    width: 90%;
+    height: 40px;
+}
+
+.view-filter-swich, .inactive-filter-swich{
+    height: 30px !important;
+    vertical-align: top;
+}
+
+.react-switch-handle{
+    display: none;
 }

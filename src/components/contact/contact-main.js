@@ -65,7 +65,7 @@ class ContactApp extends Component{
         );
         }else{
             return <tr className="contact-row">
-                        <td colSpan="5">No contacts found, Please click add button to create one.</td>
+                        <td colSpan="5">No contacts found, Please click "Create Contact" button to create one.</td>
                     </tr>
         }
     }
@@ -81,30 +81,35 @@ class ContactApp extends Component{
                     return null;
                 }else{
                     return <div key={idx} className="contact-card col-4"> 
-                            <div className="card-contact-name">{`${fName} ${lName}`}</div>
-                            <div className="card-contact-email">{contact.email}</div>
-                            <div className="card-contact-phone">{contact.phone}</div>
-                            <div className="card-contact-phone">{contact.status}</div>
-                            <div className="card-contact-action">
-                                <span className="edit-contact-icon" title="Edit" onClick={()=>{ this.editContact(contact.phone) }}>
-                                    <img src={require("../../asset/edit-icon24.png")} alt="edit icon"></img>
-                                </span>
-                                {
-                                    contact.status === "active"
-                                    ?
-                                    <span className="delete-contact-icon" title="Inactivate" onClick={()=>{ this.deleteContact(contact.phone) }} >
-                                        <img src={require("../../asset/delete-icon-26.png")} alt="inactivate icon"></img>
+                            <div className="card">
+                                <div className="card-contact-name">{`${fName} ${lName}`}</div>
+                                <div className="card-contact-email">{contact.email}</div>
+                                <div className="card-contact-phone">{contact.phone}</div>
+                                <div className="card-contact-phone">{contact.status}</div>
+                                <div className="card-contact-action">
+                                    <span className="edit-contact-icon" title="Edit" onClick={()=>{ this.editContact(contact.phone) }}>
+                                        <img src={require("../../asset/edit-icon24.png")} alt="edit icon"></img>
                                     </span>
-                                    :
-                                    <span className="delete-contact-icon" ></span>
-                                }
+                                    {
+                                        contact.status === "active"
+                                        ?
+                                        <span className="delete-contact-icon" title="Inactivate" onClick={()=>{ this.deleteContact(contact.phone) }} >
+                                            <img src={require("../../asset/delete-icon-26.png")} alt="inactivate icon"></img>
+                                        </span>
+                                        :
+                                        <span className="delete-contact-icon" ></span>
+                                    }
+                                </div>
                             </div>
                         </div>
                     }
             });
             
         }else{
-            return <div className="contact-card"> No contact found click "Create Contact" button to create one.</div>
+            return <div className="contact-card"> 
+            <div className="card">
+             No contact found click "Create Contact" button to create one.</div>
+            </div>
         }
     }
 
@@ -175,9 +180,9 @@ class ContactApp extends Component{
         let valid = true;
         let list = t.state.contactList;
         let isMailOrPhoneExist = false;
+        console.log("List",list)
         list.map((contact,index) =>{
-            console.log("t.state.editRowId",t.state.editRowId,index)
-            if(t.state.editRowId == index){
+            if(t.state.editRowId == index && t.state.isEditing){
                 return false;
             }else if(contact.phone === t.state.phone || contact.email === t.state.email){
                 isMailOrPhoneExist = true;
@@ -276,6 +281,24 @@ class ContactApp extends Component{
         this.setState({ showCardView : checked });
     }
 
+    deleteAllContact = () =>{
+        let t = this;
+        this.okCancelDialog.show({
+            body: "Are you sure you want to delete all contacts?",
+            actions: [
+              Dialog.CancelAction(() =>{  }),
+              Dialog.OKAction(()=>{ 
+                    localStorage.removeItem("contactList");
+                    t.setState({contactList:[]});
+                    t.notificationDisplay("All Contacts are deleted permanently.");
+                })
+            ],
+            onHide: (dialog) => {
+              dialog.hide();
+            }
+          });
+    }
+
     componentDidMount(){  
         this.setState({loading:false});    
         if(localStorage.contactList){
@@ -287,20 +310,23 @@ class ContactApp extends Component{
         return(
             <div className="container">
                 <div className="create-contact-wrapper col-12">
-                    <div className="col-4">
+                    <div className="col-3">
                     <label className="inactive-filter-lable">
                             <span>Show Card View</span>
                             <Switch className="view-filter-swich" onChange={this.handleViewFilterChange} checked={this.state.showCardView} />
                         </label>
                     </div>
-                    <div className="col-4">
+                    <div className="col-3">
                         <label className="inactive-filter-lable">
                             <span>Show Inactive Contact</span>
                             <Switch className="inactive-filter-swich" onChange={this.handleStatusFilterChange} checked={this.state.showInactive} />
                         </label>
                     </div>
-                    <div className="col-4">
-                        <Button className="create-contact-btn btn btn-primary" onClick={this.openCreateEditModal}>Create Contact</Button>
+                    <div className="col-3">
+                        <Button className="create-contact-btn" onClick={this.openCreateEditModal}>Create Contact</Button>
+                    </div>
+                    <div className="col-3">
+                        <Button className="delete-all-btn btn-danger" onClick={this.deleteAllContact}>Delete All Contacts</Button>
                     </div>
                     
                 </div>
@@ -317,7 +343,7 @@ class ContactApp extends Component{
                         <div className="contact-table-div">
                             <table className="table contact-table">
                                 <thead>
-                                    <tr>
+                                    <tr className="contact-thead-tr">
                                         <th className="">Name</th>
                                         <th className="">Email</th>
                                         <th className="">Phone</th>
