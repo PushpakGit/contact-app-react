@@ -6,13 +6,14 @@ import Snackbar from '@material-ui/core/Snackbar';
 import MDSpinner from "react-md-spinner";
 import Switch from "react-switch";
 import Dialog from 'react-bootstrap-dialog';
-
+import { connect } from 'react-redux';
+import { createContact } from '../../actions/index';
 class ContactApp extends Component{
 
     constructor(props){
-	   super(props);
+       super(props);
         this.state = {
-            contactList : [],
+            contactList : this.props.contactList,
             loading:true,
             open:false,
             show:false,
@@ -31,7 +32,7 @@ class ContactApp extends Component{
 
     renderContactTable = () =>{
         let t = this;
-        let list = t.state.contactList;
+        let list = t.props.contactList;
         if(list.length > 0){
         return list.map(contact => {
             let fName = contact.firstName ? contact.firstName : ''; // handling null value
@@ -72,7 +73,7 @@ class ContactApp extends Component{
 
     renderContactCards = () => {
         let t = this;
-        let list = t.state.contactList;
+        let list = t.props.contactList;
         if(list.length > 0){
             return list.map((contact,idx) => {
                 let fName = contact.firstName ? contact.firstName : ''; // handling null value
@@ -139,7 +140,7 @@ class ContactApp extends Component{
         event.preventDefault();
         let t = this;
         let isValid = t.checkForFormValidation();
-        console.log("Valid", isValid);
+        // console.log("Valid", isValid);
         let allContacts = [];
         if(localStorage.contactList){
             allContacts = JSON.parse(localStorage.contactList);
@@ -157,10 +158,11 @@ class ContactApp extends Component{
                 allContacts[this.state.editRowId] = contactObj;
                 t.notificationDisplay("Contact updated successfully");
             }else{
-                allContacts = [...allContacts,contactObj];
+                // allContacts = [...allContacts,contactObj];
+                t.props.dispatchContact(contactObj);
                 t.notificationDisplay("Contact created successfully");
             }            
-            localStorage.setItem('contactList', JSON.stringify(allContacts));            
+            // localStorage.setItem('contactList', JSON.stringify(allContacts));            
             t.setState({contactList:allContacts,show:false});
             this.resetDialog();
         } 
@@ -178,7 +180,7 @@ class ContactApp extends Component{
     checkForFormValidation = () => {
         let t = this;
         let valid = true;
-        let list = t.state.contactList;
+        let list = t.props.contactList;
         let isMailOrPhoneExist = false;
         console.log("List",list)
         list.map((contact,index) =>{
@@ -210,7 +212,7 @@ class ContactApp extends Component{
 
     editContact = (phone) =>{
         let t = this;
-        let list = t.state.contactList;
+        let list = t.props.contactList;
         let selectedContact,idx;
         list.map((contact,index) => {
             if(contact.phone === phone){
@@ -236,7 +238,7 @@ class ContactApp extends Component{
             actions: [
               Dialog.CancelAction(() =>{  }),
               Dialog.OKAction(()=>{ 
-                    let list = t.state.contactList;
+                    let list = t.props.contactList;
                     let idx;
                     list.map((contact,index) => {
                         if(contact.phone === phone){
@@ -246,7 +248,7 @@ class ContactApp extends Component{
                     });
                     list[idx].status = "inactive";
                     t.setState({contactList:list});
-                    localStorage.setItem('contactList', JSON.stringify(list));
+                    // localStorage.setItem('contactList', JSON.stringify(list));
                     t.notificationDisplay("Contact marked as inactive");
                 })
             ],
@@ -288,7 +290,7 @@ class ContactApp extends Component{
             actions: [
               Dialog.CancelAction(() =>{  }),
               Dialog.OKAction(()=>{ 
-                    localStorage.removeItem("contactList");
+                    // localStorage.removeItem("contactList");
                     t.setState({contactList:[]});
                     t.notificationDisplay("All Contacts are deleted permanently.");
                 })
@@ -419,6 +421,23 @@ class ContactApp extends Component{
             </div>
         );
     }
+
 }
 
-export default ContactApp;
+
+const mapStateToProps = state => {
+    console.log("STATE",state)
+    return {
+        contactList: state.contactList
+    }
+  }
+
+const mapDispatchToProps = dispatch => {
+    return {
+        dispatchContact: (contact) => {
+            dispatch(createContact(contact))
+      }
+    }
+  } 
+
+export default connect(mapStateToProps, mapDispatchToProps)(ContactApp);
