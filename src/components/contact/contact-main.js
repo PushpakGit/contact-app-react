@@ -8,12 +8,15 @@ import Switch from "react-switch";
 import Dialog from 'react-bootstrap-dialog';
 import { connect } from 'react-redux';
 import { createContact } from '../../actions/index';
+import ContactTable from './contact-table';
+import ContactCards from './contact-cards';
+
 class ContactApp extends Component{
 
     constructor(props){
        super(props);
         this.state = {
-            contactList : this.props.contactList,
+            // contactList : this.props.contactList,
             loading:true,
             open:false,
             show:false,
@@ -30,89 +33,13 @@ class ContactApp extends Component{
         }
     }
 
-    renderContactTable = () =>{
-        let t = this;
-        let list = t.props.contactList;
-        if(list.length > 0){
-        return list.map(contact => {
-            let fName = contact.firstName ? contact.firstName : ''; // handling null value
-            let lName = contact.lastName ? contact.lastName : '';
+    // renderContactTable = () =>{
+        
+    // }
 
-            if(!t.state.showInactive && contact.status === "inactive"){
-                return null;
-            }else{
-                return <tr className="contact-row" key={contact.phone}>
-                    <td className="contact-data">{ `${fName} ${lName}` }</td>
-                    <td className="contact-data">{ contact.email }</td>
-                    <td className="contact-data">{ contact.phone }</td>
-                    <td className="contact-data">{ contact.status }</td>
-                    <td className="contact-data"> 
-                        <span className="edit-contact-icon" title="Edit" onClick={()=>{ this.editContact(contact.phone) }}>
-                            <img src={require("../../asset/edit-icon24.png")} alt="edit icon"></img>
-                        </span>
-                        {
-                            contact.status === "active"
-                            ?
-                            <span className="delete-contact-icon" title="Inactivate" onClick={()=>{ this.deleteContact(contact.phone) }} >
-                                <img src={require("../../asset/delete-icon-26.png")} alt="inactivate icon"></img>
-                            </span>
-                            :
-                            <span className="delete-contact-icon" ></span>
-                        }                        
-                    </td>
-                </tr>  
-            }
-        }
-        );
-        }else{
-            return <tr className="contact-row">
-                        <td colSpan="5">No contact found, Please click "Create Contact" button to create one.</td>
-                    </tr>
-        }
-    }
-
-    renderContactCards = () => {
-        let t = this;
-        let list = t.props.contactList;
-        if(list.length > 0){
-            return list.map((contact,idx) => {
-                let fName = contact.firstName ? contact.firstName : ''; // handling null value
-                let lName = contact.lastName ? contact.lastName : '';
-                if(!t.state.showInactive && contact.status === "inactive"){
-                    return null;
-                }else{
-                    return <div key={idx} className="contact-card col-lg-4"> 
-                            <div className="card">
-                                <div className="card-contact-name">{`${fName} ${lName}`}</div>
-                                <div className="card-contact-email">{contact.email}</div>
-                                <div className="card-contact-phone">{contact.phone}</div>
-                                <div className="card-contact-phone">{contact.status}</div>
-                                <div className="card-contact-action">
-                                    <span className="edit-contact-icon" title="Edit" onClick={()=>{ this.editContact(contact.phone) }}>
-                                        <img src={require("../../asset/edit-icon24.png")} alt="edit icon"></img>
-                                    </span>
-                                    {
-                                        contact.status === "active"
-                                        ?
-                                        <span className="delete-contact-icon" title="Inactivate" onClick={()=>{ this.deleteContact(contact.phone) }} >
-                                            <img src={require("../../asset/delete-icon-26.png")} alt="inactivate icon"></img>
-                                        </span>
-                                        :
-                                        <span className="delete-contact-icon" ></span>
-                                    }
-                                </div>
-                            </div>
-                        </div>
-                    }
-            });
-            
-        }else{
-            return <div className="contact-card col-lg-4"> 
-            <div className="card">
-             No contact found click "Create Contact" button to create one.</div>
-            </div>
-        }
-    }
+    // renderContactCards = () => {
+        
+    // }
 
     handleClose = () =>{
         this.resetDialog();
@@ -337,9 +264,12 @@ class ContactApp extends Component{
                         this.state.showCardView
                         ?
                         <div className="contact-card-div col-12">
-                            {
-                                this.renderContactCards()
-                            }                        
+                            <ContactCards 
+                            {...this.props}
+                            showInactive={ this.state.showInactive }
+                            editContact={this.editContact}
+                            deleteContact={this.deleteContact}
+                            />                        
                         </div>
                         :
                         <div className="contact-table-div">
@@ -354,9 +284,12 @@ class ContactApp extends Component{
                                     </tr>
                                 </thead>
                                 <tbody className="contact-table-body">
-                                    {
-                                        this.renderContactTable()
-                                    }
+                                <ContactTable 
+                                        {...this.props}
+                                        showInactive={ this.state.showInactive }
+                                        editContact={this.editContact}
+                                        deleteContact={this.deleteContact}
+                                    />
                                 </tbody>
                             </table>
                         </div>
