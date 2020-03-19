@@ -4,13 +4,16 @@ import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
-import contactApp from './reducers/index';
+import rootReducer from './reducers/index';
 import { createStore } from 'redux';
 import { Provider } from 'react-redux'
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const store = createStore(contactApp);
+const store = createStore(  rootReducer,    // reducer
+                            {},             //initial state
+                            window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()  // setting to see data in dev tools
+                        );
 // console.log(store.getState());
 // store.dispatch(createContact());
 // console.log(store.getState());

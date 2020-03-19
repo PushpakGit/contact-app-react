@@ -1,27 +1,13 @@
-import { 
-    CREATE_CONTACT,
-    INACTIVATE_CONTACT,
-    DELETE_ALL
-} from '../actions/index';
+import { combineReducers } from 'redux';
 
-const initialState = {
-    contactList: []
-  }
+import contactApp from './crudReducers';
+import appFilters from "./filters";
 
-export default function contactApp(state=initialState,action){
-    switch(action.type){
-        case CREATE_CONTACT :
-            return Object.assign({},state,{
-                contactList:[
-                    ...state.contactList,
-                    {
-                        ...action.contact
-                    }
-                ]
-            })
-         
-        default:
-            return state;
+const rootReducer = combineReducers(
+    {
+        contactApp,
+        appFilters
     }
+)
 
-}
+export default rootReducer;

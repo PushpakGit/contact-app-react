@@ -7,7 +7,9 @@ import MDSpinner from "react-md-spinner";
 import Switch from "react-switch";
 import Dialog from 'react-bootstrap-dialog';
 import { connect } from 'react-redux';
-import { createContact } from '../../actions/index';
+import PropTypes  from 'prop-types';
+
+import { createContact, makeInactive, deleteAllContacts, updateContact, SHOW_CARD_VIEW_FILTER, SHOW_INACTIVE_FILTER } from '../../actions/index';
 import ContactTable from './contact-table';
 import ContactCards from './contact-cards';
 
@@ -16,7 +18,7 @@ class ContactApp extends Component{
     constructor(props){
        super(props);
         this.state = {
-            // contactList : this.props.contactList,
+            //  local app states
             loading:true,
             open:false,
             show:false,
@@ -28,18 +30,10 @@ class ContactApp extends Component{
             message:'',
             isEditing:false,
             editRowId:'',
-            showInactive:false,
-            showCardView:false
+
+            
         }
     }
-
-    // renderContactTable = () =>{
-        
-    // }
-
-    // renderContactCards = () => {
-        
-    // }
 
     handleClose = () =>{
         this.resetDialog();
@@ -68,11 +62,7 @@ class ContactApp extends Component{
         let t = this;
         let isValid = t.checkForFormValidation();
         // console.log("Valid", isValid);
-        let allContacts = [];
-        if(localStorage.contactList){
-            allContacts = JSON.parse(localStorage.contactList);
-        }
-        
+              
         if (isValid) {
             let contactObj = {
                 firstName:t.state.firstName.trim(),
@@ -82,7 +72,8 @@ class ContactApp extends Component{
                 status:t.state.isEditing ? t.state.status : "active"
             }
             if(t.state.isEditing){
-                allContacts[this.state.editRowId] = contactObj;
+                // allContacts[this.state.editRowId] = contactObj;
+                t.props.editSelectedContact(this.state.editRowId,contactObj)
                 t.notificationDisplay("Contact updated successfully");
             }else{
                 // allContacts = [...allContacts,contactObj];
@@ -90,7 +81,7 @@ class ContactApp extends Component{
                 t.notificationDisplay("Contact created successfully");
             }            
             // localStorage.setItem('contactList', JSON.stringify(allContacts));            
-            t.setState({contactList:allContacts,show:false});
+            t.setState({show:false});
             this.resetDialog();
         } 
     }
@@ -173,8 +164,8 @@ class ContactApp extends Component{
                         }
                         return '';
                     });
-                    list[idx].status = "inactive";
-                    t.setState({contactList:list});
+                   
+                    t.props.inactivateContact(idx);
                     // localStorage.setItem('contactList', JSON.stringify(list));
                     t.notificationDisplay("Contact marked as inactive");
                 })
@@ -203,11 +194,13 @@ class ContactApp extends Component{
     }
 
     handleStatusFilterChange = (checked) =>{
-        this.setState({ showInactive : checked });
+        // this.setState({ showInactive : checked });
+        this.props.changeStatus(checked)
     }
 
     handleViewFilterChange = (checked) =>{
-        this.setState({ showCardView : checked });
+        // this.setState({ showCardView : checked });
+        this.props.changeView(checked);
     }
 
     deleteAllContact = () =>{
@@ -217,8 +210,7 @@ class ContactApp extends Component{
             actions: [
               Dialog.CancelAction(() =>{  }),
               Dialog.OKAction(()=>{ 
-                    // localStorage.removeItem("contactList");
-                    t.setState({contactList:[]});
+                    t.props.deleteAll()
                     t.notificationDisplay("All Contacts are deleted permanently.");
                 })
             ],
@@ -242,13 +234,13 @@ class ContactApp extends Component{
                     <div className="col-lg-3">
                     <label className="inactive-filter-lable">
                             <span>Show Card View</span>
-                            <Switch className="view-filter-swich" onChange={this.handleViewFilterChange} checked={this.state.showCardView} />
+                            <Switch className="view-filter-swich" onChange={this.handleViewFilterChange} checked={this.props.showCardView} />
                         </label>
                     </div>
                     <div className="col-lg-3">
                         <label className="inactive-filter-lable">
                             <span>Show Inactive Contact</span>
-                            <Switch className="inactive-filter-swich" onChange={this.handleStatusFilterChange} checked={this.state.showInactive} />
+                            <Switch className="inactive-filter-swich" onChange={this.handleStatusFilterChange} checked={this.props.showInactive} />
                         </label>
                     </div>
                     <div className="col-lg-3">
@@ -261,12 +253,12 @@ class ContactApp extends Component{
                 </div>
                 <div>
                     {
-                        this.state.showCardView
+                        this.props.showCardView
                         ?
                         <div className="contact-card-div col-12">
                             <ContactCards 
                             {...this.props}
-                            showInactive={ this.state.showInactive }
+                            showInactive={ this.props.showInactive }
                             editContact={this.editContact}
                             deleteContact={this.deleteContact}
                             />                        
@@ -286,7 +278,7 @@ class ContactApp extends Component{
                                 <tbody className="contact-table-body">
                                 <ContactTable 
                                         {...this.props}
-                                        showInactive={ this.state.showInactive }
+                                        showInactive={ this.props.showInactive }
                                         editContact={this.editContact}
                                         deleteContact={this.deleteContact}
                                     />
@@ -361,16 +353,33 @@ class ContactApp extends Component{
 const mapStateToProps = state => {
     console.log("STATE",state)
     return {
-        contactList: state.contactList
+        contactList: state.contactApp.contactList,
+        showCardView:state.appFilters.showCardView,
+        showInactive:state.appFilters.showInactive
     }
   }
 
 const mapDispatchToProps = dispatch => {
     return {
-        dispatchContact: (contact) => {
-            dispatch(createContact(contact))
-      }
+        dispatchContact: contact => dispatch(createContact(contact)),
+        inactivateContact: idx => dispatch(makeInactive(idx)) ,
+        deleteAll: () => dispatch( deleteAllContacts()),
+        editSelectedContact: (id,updatedContact) => dispatch(updateContact(id,updatedContact)),
+        changeStatus: checked => dispatch({ type:SHOW_INACTIVE_FILTER, checked}),
+        changeView: checked => dispatch({ type:SHOW_CARD_VIEW_FILTER, checked})
     }
   } 
+
+ContactApp.propTypes = {
+    contactList: PropTypes.array.isRequired,
+    showCardView: PropTypes.bool.isRequired,
+    showInactive: PropTypes.bool.isRequired,
+    dispatchContact: PropTypes.func.isRequired,
+    inactivateContact: PropTypes.func.isRequired,
+    deleteAll: PropTypes.func.isRequired,
+    changeStatus: PropTypes.func.isRequired,
+    changeView: PropTypes.func.isRequired,
+    editSelectedContact: PropTypes.func.isRequired
+}
 
 export default connect(mapStateToProps, mapDispatchToProps)(ContactApp);
